@@ -9,6 +9,5 @@ terraform {
   }
 }
 provider "aws" {
-  region     = "ap-south-1"
-  # profile    = "devops"#
+  region     = "us-east-1"
 }
