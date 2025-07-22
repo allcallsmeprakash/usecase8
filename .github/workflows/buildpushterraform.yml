@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: ap-south-1
-  PATIENT_REPO: 012889719104.dkr.ecr.ap-south-1.amazonaws.com/patient-service
-  APPOINTMENT_REPO: 012889719104.dkr.ecr.ap-south-1.amazonaws.com/appointment-service
+  AWS_REGION: us-east-1
+  PATIENT_REPO: 
+  APPOINTMENT_REPO: 
 
 permissions:
   id-token: write
@@ -26,12 +26,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # OIDC AWS creds
-      - name: Configure AWS credentials (OIDC)
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::012889719104:role/oidc_role
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
