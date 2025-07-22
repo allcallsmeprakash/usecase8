@@ -1,14 +1,12 @@
 name: Build and Deploy to AWS
 
 on:
-  # push:
-    # branches: [main]
   workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
-  PATIENT_REPO: 
-  APPOINTMENT_REPO: 
+  PATIENT_REPO: 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-patient
+  APPOINTMENT_REPO: 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-appointment
 
 permissions:
   id-token: write
@@ -39,14 +37,14 @@ jobs:
       # Patient Service build & push
       - name: Build patient-service Docker image
         run: |
-          docker build -t $PATIENT_REPO:latest ./application/patient-service
-          docker push $PATIENT_REPO:latest
+          docker build -t 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-patient:latest ./application/patient-service
+          docker push 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-patient:latest
 
       # Appointment Service build & push
       - name: Build appointment-service Docker image
         run: |
-          docker build -t $APPOINTMENT_REPO:latest ./application/appointment-service
-          docker push $APPOINTMENT_REPO:latest
+          docker build -t 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-appointment:latest ./application/appointment-service
+          docker push 082041771564.dkr.ecr.us-east-1.amazonaws.com/uc8-appointment:latest
 
       # Terraform deploy
       - name: Set up Terraform
