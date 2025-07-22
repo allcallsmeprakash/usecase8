@@ -1,4 +1,3 @@
-
 resource "aws_security_group" "alb" {
   name_prefix = "${var.environment}-alb-"
   vpc_id      = var.vpc_id
@@ -35,8 +34,6 @@ resource "aws_security_group" "alb" {
   }
 }
 
-
-# Application Load Balancer
 resource "aws_lb" "main" {
   name               = "${var.environment}-alb"
   internal           = false
@@ -52,20 +49,18 @@ resource "aws_lb" "main" {
   }
 }
 
-# Target Group for Patient Service
 resource "aws_lb_target_group" "patient_service" {
-  name     = "${var.environment}-patient-tg"
-  port     = 3000
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
-  target_type = "ip"
+  name         = "${var.environment}-patient-tg"
+  port         = 3000
+  protocol     = "HTTP"
+  vpc_id       = var.vpc_id
+  target_type  = "ip"
 
   health_check {
     enabled             = true
     healthy_threshold   = 2
-    interval            = 30
-    matcher             = "200"
-    path                = "/health"
+                = "200"
+    path                = "/health/status"
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 5
@@ -78,20 +73,19 @@ resource "aws_lb_target_group" "patient_service" {
   }
 }
 
-# Target Group for Appointment Service
 resource "aws_lb_target_group" "appointment_service" {
-  name     = "${var.environment}-apmt-tg"
-  port     = 3001
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
-  target_type = "ip"
+  name         = "${var.environment}-apmt-tg"
+  port         = 3001
+  protocol     = "HTTP"
+  vpc_id       = var.vpc_id
+  target_type  = "ip"
 
   health_check {
     enabled             = true
     healthy_threshold   = 2
     interval            = 30
     matcher             = "200"
-    path                = "/health"
+    path                = "/health/status"
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 5
@@ -105,7 +99,6 @@ resource "aws_lb_target_group" "appointment_service" {
   }
 }
 
-# ALB Listener
 resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
@@ -127,7 +120,6 @@ resource "aws_lb_listener" "main" {
   }
 }
 
-# Listener Rule for Patient Service
 resource "aws_lb_listener_rule" "patient_service" {
   listener_arn = aws_lb_listener.main.arn
   priority     = 100
@@ -139,7 +131,7 @@ resource "aws_lb_listener_rule" "patient_service" {
 
   condition {
     path_pattern {
-      values = ["/patients/*"]
+      values = ["/patients/status"]
     }
   }
 
@@ -150,7 +142,6 @@ resource "aws_lb_listener_rule" "patient_service" {
   }
 }
 
-# Listener Rule for Appointment Service
 resource "aws_lb_listener_rule" "appointment_service" {
   listener_arn = aws_lb_listener.main.arn
   priority     = 200
@@ -162,7 +153,7 @@ resource "aws_lb_listener_rule" "appointment_service" {
 
   condition {
     path_pattern {
-      values = ["/appointments/*"]
+      values = ["/appointments/status"]
     }
   }
 
@@ -173,29 +164,56 @@ resource "aws_lb_listener_rule" "appointment_service" {
   }
 }
 
-# Health check rule for both services
-resource "aws_lb_listener_rule" "health_check" {
+resource "aws_lb_listener_rule" "patient_health_check" {
   listener_arn = aws_lb_listener.main.arn
-  priority     = 50
+  priority     = 40
 
   action {
     type = "fixed-response"
 
     fixed_response {
       content_type = "application/json"
-      message_body = "{\"status\":\"service-are-healthy\",\"services\":[\"uc8-patient-service\",\"uc8-appointment-service\"]}"
+      message_body = "{\"status\":\"healthy\",\"service\":\"uc8-patient-service\"}"
       status_code  = "200"
     }
   }
 
   condition {
     path_pattern {
-      values = ["/health"]
+      values = ["/health/patient"]
     }
   }
 
   tags = {
-    Name        = "${var.environment}-health-rule"
+    Name        = "${var.environment}-patient-health-rule"
+    Service     = "patient-service"
+    Environment = var.environment
+  }
+}
+
+resource "aws_lb_listener_rule" "appointment_health_check" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 45
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      message_body = "{\"status\":\"healthy\",\"service\":\"uc8-appointment-service\"}"
+      status_code  = "200"
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/health/appointment"]
+    }
+  }
+
+  tags = {
+    Name        = "${var.environment}-appointment-health-rule"
+    Service     = "appointment-service"
     Environment = var.environment
   }
 }
