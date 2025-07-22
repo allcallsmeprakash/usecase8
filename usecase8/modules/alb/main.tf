@@ -183,7 +183,7 @@ resource "aws_lb_listener_rule" "health_check" {
 
     fixed_response {
       content_type = "application/json"
-      message_body = "{\"status\":\"healthy\",\"services\":[\"patient-service\",\"appointment-service\"]}"
+      message_body = "{\"status\":\"service-are-healthy\",\"services\":[\"uc8-patient-service\",\"uc8-appointment-service\"]}"
       status_code  = "200"
     }
   }
