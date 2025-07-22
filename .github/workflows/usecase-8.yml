@@ -1,0 +1,62 @@
+name: Build and Deploy to AWS
+
+on:
+  # push:
+    # branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  PATIENT_REPO: 012889719104.dkr.ecr.ap-south-1.amazonaws.com/patient-service
+  APPOINTMENT_REPO: 012889719104.dkr.ecr.ap-south-1.amazonaws.com/appointment-service
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: usecase8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # OIDC AWS creds
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::012889719104:role/oidc_role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Patient Service build & push
+      - name: Build patient-service Docker image
+        run: |
+          docker build -t $PATIENT_REPO:latest ./application/patient-service
+          docker push $PATIENT_REPO:latest
+
+      # Appointment Service build & push
+      - name: Build appointment-service Docker image
+        run: |
+          docker build -t $APPOINTMENT_REPO:latest ./application/appointment-service
+          docker push $APPOINTMENT_REPO:latest
+
+      # Terraform deploy
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -reconfigure
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
