@@ -13,7 +13,7 @@ const logger = winston.createLogger({
     new winston.transports.CloudWatch({
       logGroupName: '/healthcare/appointment-service',
       logStreamName: 'appointment-stream',
-      awsRegion: 'ap-south-1', // Update to your region
+      awsRegion: 'us-east-1',
       jsonMessage: true
     })
   ]
