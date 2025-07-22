@@ -112,7 +112,7 @@ resource "aws_lb_listener" "main" {
 
     fixed_response {
       content_type = "text/plain"
-      message_body = "Healthcare Application"
+      message_body = "Patient and Appointment service is running as expected"
       status_code  = "404"
     }
   }
