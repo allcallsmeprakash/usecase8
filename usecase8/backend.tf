@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = "new-state-temp"
-    key            = "usecase-8-new/terraform.tfstate"
-    region         = "ap-south-1"                
+    bucket         = "training-usecases"
+    key            = "uc8/terraform.tfstate"
+    region         = "us-east-1"                
     use_lockfile = true
 
   }
