@@ -59,7 +59,7 @@ resource "aws_lb_target_group" "patient_service" {
   health_check {
     enabled             = true
     healthy_threshold   = 2
-                = "200"
+    matcher             = "200"
     path                = "/health/status"
     port                = "traffic-port"
     protocol            = "HTTP"
