@@ -25,7 +25,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Terraform Init (Bootstrap)
-        run: terraform -chdir=terraform/bootstrap init
+        run: terraform -chdir=usecase8/bootstrap init
 
       - name: Terraform Apply (Bootstrap)
-        run: terraform -chdir=terraform/bootstrap apply -auto-approve
+        run: terraform -chdir=usecase8/bootstrap apply -auto-approve
