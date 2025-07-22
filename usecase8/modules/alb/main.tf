@@ -41,11 +41,7 @@ resource "aws_lb" "main" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
   
-  access_logs {
-    bucket  = "training-usecases"
-    enabled = true
-    prefix  = "uc8/alb-logs"
-  }
+ 
 
 
   enable_deletion_protection = false
